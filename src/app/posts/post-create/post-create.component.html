@@ -1,0 +1,20 @@
+<form [formGroup]="newPostForm">
+    <mat-card>
+        <mat-form-field>
+            <input matInput type="text" formControlName="title" placeholder="Title">
+            <mat-error *ngIf="newPostForm.get('title').hasError('required')">
+                Oops, provide a title for the post
+            </mat-error>
+            <mat-error *ngIf="newPostForm.get('title').hasError('minlength')">
+                Oops, title is too short
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field>
+            <textarea rows="6" matInput formControlName="content" placeholder="Content"></textarea>
+            <mat-error *ngIf="newPostForm.get('content').hasError('required')">
+                Oops, provide some content to the post
+            </mat-error>
+        </mat-form-field>
+        <button mat-raised-button color="primary" (click)="onAddPost()" [disabled]="newPostForm.invalid">Save Post</button>
+    </mat-card>
+</form>
