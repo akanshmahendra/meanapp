@@ -1,7 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
+const Post = require('./models/post');
 const app = express();
+
+mongoose.connect('mongodb+srv://akki:7bDhflTpetlaP7Yy@cluster0-tpn9m.mongodb.net/post-test?retryWrites=true&w=majority', { useUnifiedTopology:true , useNewUrlParser:true })
+    .then(() => {
+        console.log('Connected to Database!');
+    })
+    .catch((error) => {
+        console.log('Connection Failed with => ', error);
+    });
 
 app.use(bodyParser.json());
 
@@ -15,21 +25,30 @@ app.use((req, res,next) => {
 });
 
 app.post('/api/posts', (req, res, next) => {
-    const post = req.body;
-    console.log(post);
-    res.status(201).json({
-        message: 'Post added successfully'
+    const post = new Post({
+        title: req.body.title,
+        content: req.body.content
+    });
+    post.save().then(createdPost => {
+        res.status(201).json({
+            message: 'Post added successfully',
+            postId: createdPost._id
+        });
     });
 });
 
-app.use('/api/posts', (req, res, next) => {
-    const posts = [
-        { id: '123456', title: 'First Post', content: 'Some Content' }
-    ];
-    res.status(200).json({
-        message: 'Posts sent successfully!',
-        posts: posts
+app.get('/api/posts', (req, res, next) => {
+    Post.find().then(documents => {
+        res.status(200).json({
+            message: 'Posts sent successfully!',
+            posts: documents
+        });
     });
+});
+
+app.delete("/api/posts/:id", (req, res, next) => {
+    Post.deleteOne({ _id: req.params.id }).then(result => console.log(result));
+    res.status(200).json({ message: 'Post deleted successfully!'});
 });
 
 module.exports = app;

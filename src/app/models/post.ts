@@ -6,5 +6,5 @@ export interface Post {
 
 export interface PostDto {
     message: string;
-    posts: Post[];
+    posts: any;
 }
