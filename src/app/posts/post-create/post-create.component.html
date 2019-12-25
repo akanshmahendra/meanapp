@@ -1,5 +1,6 @@
-<form [formGroup]="newPostForm">
-    <mat-card>
+<mat-card>
+    <mat-spinner *ngIf="isLoading"></mat-spinner>
+    <form [formGroup]="newPostForm" *ngIf="!isLoading">
         <mat-form-field>
             <input matInput type="text" formControlName="title" placeholder="Title">
             <mat-error *ngIf="newPostForm.get('title').hasError('required')">
@@ -15,6 +16,6 @@
                 Oops, provide some content to the post
             </mat-error>
         </mat-form-field>
-        <button mat-raised-button color="primary" (click)="onAddPost()" [disabled]="newPostForm.invalid">Save Post</button>
-    </mat-card>
-</form>
+        <button mat-raised-button color="primary" (click)="onSavePost()" [disabled]="newPostForm.invalid">Save Post</button>
+    </form>
+</mat-card>
