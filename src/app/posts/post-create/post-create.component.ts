@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { PostService } from 'src/app/services/post.service';
+import { mimeType } from 'src/app/validators/mime-type.validator';
 
 @Component({
   selector: 'app-post-create',
@@ -14,6 +15,7 @@ export class PostCreateComponent implements OnInit {
   mode: string;
   postId: string;
   isLoading: boolean = false;
+  imagePreview: string | ArrayBuffer;
 
   constructor(private postService: PostService, private router: ActivatedRoute) { }
 
@@ -21,7 +23,8 @@ export class PostCreateComponent implements OnInit {
     this.newPostForm = new FormGroup({
       title: new FormControl('', [Validators.required, Validators.minLength(3)]),
       content: new FormControl('', Validators.required),
-      id: new FormControl('')
+      id: new FormControl(''),
+      image: new FormControl(null, { validators: [Validators.required], asyncValidators: [mimeType] })
     });
 
     this.router.paramMap.subscribe((paramMap: ParamMap) => {
@@ -34,7 +37,8 @@ export class PostCreateComponent implements OnInit {
           this.newPostForm.setValue({
             title: postData.title,
             content: postData.content,
-            id: postData._id
+            id: postData._id,
+            image: postData.imagePath
           });
         });
       } else {
@@ -42,6 +46,17 @@ export class PostCreateComponent implements OnInit {
         this.postId = null;
       }
     });
+  }
+
+  onImagePicked(event: Event) {
+    const file = (event.target as HTMLInputElement).files[0];
+    this.newPostForm.patchValue({ image: file });
+    this.newPostForm.get('image').updateValueAndValidity();
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result;
+    }
+    reader.readAsDataURL(file);
   }
 
   onSavePost() {
